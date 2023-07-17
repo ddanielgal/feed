@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import { use } from "react";
 import Parser from "rss-parser";
 
@@ -9,6 +10,7 @@ export default function Home() {
 
   return (
     <main>
+      <UserButton afterSignOutUrl="/" />
       <h1>{feed.title}</h1>
       <ul>
         {feed.items.map((item) => (
