@@ -10,6 +10,12 @@ export default function Home() {
   const feed = use(
     parser.parseURL("https://newsletter.pragmaticengineer.com/feed")
   );
+  const subs = use(
+    prisma.subscription.findMany({
+      where: { userId: auth().userId },
+      select: { feed: { select: { url: true } } },
+    })
+  );
 
   async function addFeed(data: FormData) {
     "use server";
@@ -35,6 +41,12 @@ export default function Home() {
   return (
     <main>
       <UserButton afterSignOutUrl="/" />
+      <h1>My Subscriptions</h1>
+      <ul>
+        {subs.map((sub) => (
+          <li key={sub.feed.url}>{sub.feed.url}</li>
+        ))}
+      </ul>
       <form action={addFeed}>
         <input type="text" name="url" />
         <button type="submit">Add Feed</button>
