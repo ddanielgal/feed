@@ -1,13 +1,34 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider          = "postgresql"
+  // url      = env("LOCAL_DEV_DB_URL")
   url               = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
   shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+}
+
+model Feed {
+  url           String         @id
+  Posts         Post[]
+  Subscriptions Subscription[]
+}
+
+model Post {
+  guid    String   @id
+  title   String
+  link    String
+  pubDate DateTime
+  Feed    Feed     @relation(fields: [feedUrl], references: [url])
+  feedUrl String
+}
+
+model Subscription {
+  userId  String
+  feed    Feed   @relation(fields: [feedUrl], references: [url])
+  feedUrl String
+
+  @@id([userId, feedUrl])
 }
