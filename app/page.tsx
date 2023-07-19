@@ -1,8 +1,9 @@
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, auth } from "@clerk/nextjs";
 import { use } from "react";
 import Parser from "rss-parser";
 import { z } from "zod";
 import { prisma } from "./db";
+import { Prisma } from "@prisma/client";
 
 export default function Home() {
   const parser = new Parser();
@@ -13,7 +14,22 @@ export default function Home() {
   async function addFeed(data: FormData) {
     "use server";
     const url = z.string().url().parse(data.get("url"));
-    await prisma.feed.create({ data: { url } });
+    try {
+      await prisma.feed.create({ data: { url } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002" // unique constraint failed
+      ) {
+        console.info(`Feed ${url} already exists`);
+      } else {
+        throw error;
+      }
+    }
+    const userId = auth().userId;
+    await prisma.subscription.create({
+      data: { userId, feed: { connect: { url } } },
+    });
   }
 
   return (
