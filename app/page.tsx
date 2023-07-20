@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import updateFeeds from "./updateFeeds";
+import Parser from "rss-parser";
 
 export default async function Home() {
   const subs = await prisma.subscription.findMany({
@@ -11,6 +12,7 @@ export default async function Home() {
       feed: {
         select: {
           url: true,
+          title: true,
           Posts: { select: { link: true, title: true } },
         },
       },
@@ -20,8 +22,10 @@ export default async function Home() {
   async function addFeed(data: FormData) {
     "use server";
     const url = z.string().url().parse(data.get("url"));
+    const parser = new Parser();
+    const feed = await parser.parseURL(url);
     try {
-      await prisma.feed.create({ data: { url } });
+      await prisma.feed.create({ data: { url, title: feed.title } });
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -56,7 +60,7 @@ export default async function Home() {
       </form>
       {subs.map((sub) => (
         <section key={sub.feed.url}>
-          <h1>{sub.feed.url}</h1>
+          <h1>{sub.feed.title}</h1>
           <ul>
             {sub.feed.Posts.map((post) => (
               <li key={post.link}>

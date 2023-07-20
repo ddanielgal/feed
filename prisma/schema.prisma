@@ -12,6 +12,7 @@ datasource db {
 
 model Feed {
   url           String         @id
+  title         String
   Posts         Post[]
   Subscriptions Subscription[]
 }
