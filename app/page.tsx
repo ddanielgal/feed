@@ -1,16 +1,10 @@
 import { UserButton, auth } from "@clerk/nextjs";
-import Parser from "rss-parser";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
 import updateFeeds from "./updateFeeds";
 
 export default async function Home() {
-  const parser = new Parser();
-  const feed = await parser.parseURL(
-    "https://newsletter.pragmaticengineer.com/feed"
-  );
-
   const subs = await prisma.subscription.findMany({
     where: { userId: auth().userId },
     select: {
