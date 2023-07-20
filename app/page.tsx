@@ -13,7 +13,14 @@ export default async function Home() {
 
   const subs = await prisma.subscription.findMany({
     where: { userId: auth().userId },
-    select: { feed: { select: { url: true } } },
+    select: {
+      feed: {
+        select: {
+          url: true,
+          Posts: { select: { link: true, title: true } },
+        },
+      },
+    },
   });
 
   async function addFeed(data: FormData) {
@@ -53,14 +60,18 @@ export default async function Home() {
       <form action={updateFeeds}>
         <button type="submit">Update Feeds</button>
       </form>
-      <h1>{feed.title}</h1>
-      <ul>
-        {feed.items.map((item) => (
-          <li key={item.guid}>
-            <a href={item.link}>{item.title}</a>
-          </li>
-        ))}
-      </ul>
+      {subs.map((sub) => (
+        <section key={sub.feed.url}>
+          <h1>{sub.feed.url}</h1>
+          <ul>
+            {sub.feed.Posts.map((post) => (
+              <li key={post.link}>
+                <a href={post.link}>{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
     </main>
   );
 }
