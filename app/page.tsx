@@ -1,8 +1,9 @@
 import { UserButton, auth } from "@clerk/nextjs";
 import Parser from "rss-parser";
 import { z } from "zod";
-import { prisma } from "./db";
 import { Prisma } from "@prisma/client";
+import { prisma } from "./db";
+import updateFeeds from "./updateFeeds";
 
 export default async function Home() {
   const parser = new Parser();
@@ -48,6 +49,9 @@ export default async function Home() {
       <form action={addFeed}>
         <input type="text" name="url" />
         <button type="submit">Add Feed</button>
+      </form>
+      <form action={updateFeeds}>
+        <button type="submit">Update Feeds</button>
       </form>
       <h1>{feed.title}</h1>
       <ul>
