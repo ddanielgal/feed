@@ -1,19 +1,29 @@
-import { initTRPC } from "@trpc/server";
+import { TRPCError, inferAsyncReturnType, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { prisma } from "../db";
+import {
+  getAuth,
+  type SignedInAuthObject,
+  type SignedOutAuthObject,
+} from "@clerk/nextjs/server";
 
-type CreateContextOptions = Record<string, never>;
+interface AuthContext {
+  auth: SignedInAuthObject | SignedOutAuthObject;
+}
 
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = async ({ auth }: AuthContext) => {
   return {
     prisma,
+    auth,
   };
 };
 
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = (opts: CreateNextContextOptions) => {
+  return createInnerTRPCContext({ auth: getAuth(opts.req) });
 };
+
+export type Context = inferAsyncReturnType<typeof createTRPCContext>;
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
@@ -22,5 +32,18 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
   },
 });
 
+const isAuthed = t.middleware(({ next, ctx }) => {
+  if (!ctx.auth.userId) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      auth: ctx.auth,
+    },
+  });
+});
+
 export const router = t.router;
-export const procedure = t.procedure;
+export const publicProcedure = t.procedure;
+export const protectedProcedure = t.procedure.use(isAuthed);
