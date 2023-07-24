@@ -1,10 +1,11 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
+import { trpc } from "~/modules/trpc";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   return (
     <ClerkProvider {...pageProps}>
       <main className={inter.className}>
@@ -13,3 +14,5 @@ export default function App({ Component, pageProps }: AppProps) {
     </ClerkProvider>
   );
 }
+
+export default trpc.withTRPC(App);
