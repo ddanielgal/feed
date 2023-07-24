@@ -1,11 +1,26 @@
 import { initTRPC } from "@trpc/server";
+import superjson from "superjson";
+import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { prisma } from "../db";
 
-// Avoid exporting the entire t-object
-// since it's not very descriptive.
-// For instance, the use of a t variable
-// is common in i18n libraries.
-const t = initTRPC.create();
+type CreateContextOptions = Record<string, never>;
 
-// Base router and procedure helpers
+const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+  return {
+    prisma,
+  };
+};
+
+export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+  return createInnerTRPCContext({});
+};
+
+const t = initTRPC.context<typeof createTRPCContext>().create({
+  transformer: superjson,
+  errorFormatter({ shape }) {
+    return shape;
+  },
+});
+
 export const router = t.router;
 export const procedure = t.procedure;
