@@ -1,5 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import Head from "next/head";
+import AddFeed from "~/modules/subscriptions/AddFeed";
 import { trpc } from "~/modules/trpc";
 
 export default function Home() {
@@ -24,10 +25,8 @@ export default function Home() {
             <li key={sub.feed.url}>{sub.feed.url}</li>
           ))}
         </ul>
-        {/* <form action={addFeed}>
-        <input type="text" name="url" />
-        <button type="submit">Add Feed</button>
-      </form>
+        <AddFeed />
+        {/*
       <form action={updateFeeds}>
         <button type="submit">Update Feeds</button>
       </form> */}

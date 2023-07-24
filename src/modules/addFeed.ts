@@ -1,6 +1,6 @@
 import Parser from "rss-parser";
 import { z } from "zod";
-import { prisma } from "./db";
+import { prisma } from "./server/db";
 import { Prisma } from "@prisma/client";
 import { auth } from "@clerk/nextjs";
 

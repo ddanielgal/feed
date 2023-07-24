@@ -1,12 +1,12 @@
 import { TRPCError, inferAsyncReturnType, initTRPC } from "@trpc/server";
 import superjson from "superjson";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { prisma } from "../db";
 import {
   getAuth,
   type SignedInAuthObject,
   type SignedOutAuthObject,
 } from "@clerk/nextjs/server";
+import { prisma } from "./db";
 
 interface AuthContext {
   auth: SignedInAuthObject | SignedOutAuthObject;
