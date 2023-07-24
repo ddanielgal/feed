@@ -1,5 +1,5 @@
 import * as trpcNext from "@trpc/server/adapters/next";
-import { appRouter } from "~/modules/server/routers/root";
+import { appRouter } from "~/modules/server/root";
 import { createTRPCContext } from "~/modules/server/trpc";
 
 // export API handler

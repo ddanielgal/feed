@@ -1,34 +1,13 @@
-import { UserButton, useAuth } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Head from "next/head";
+import { trpc } from "~/modules/trpc";
 
 export default function Home() {
-  const { userId } = useAuth();
+  const { data: subscriptions } = trpc.subscriptions.list.useQuery();
 
-  if (!userId) {
+  if (!subscriptions) {
     return null;
   }
-
-  const subs: {
-    feed: {
-      url: string;
-      title: string;
-      Posts: { link: string; title: string }[];
-    };
-  }[] = [];
-  //   use(
-  //     prisma.subscription.findMany({
-  //       where: { userId },
-  //       select: {
-  //         feed: {
-  //           select: {
-  //             url: true,
-  //             title: true,
-  //             Posts: { select: { link: true, title: true } },
-  //           },
-  //         },
-  //       },
-  //     })
-  //   );
 
   return (
     <>
@@ -41,7 +20,7 @@ export default function Home() {
         </Head>
         <h1>My Subscriptions</h1>
         <ul>
-          {subs.map((sub) => (
+          {subscriptions.map((sub) => (
             <li key={sub.feed.url}>{sub.feed.url}</li>
           ))}
         </ul>
@@ -52,7 +31,7 @@ export default function Home() {
       <form action={updateFeeds}>
         <button type="submit">Update Feeds</button>
       </form> */}
-        {subs.map((sub) => (
+        {subscriptions.map((sub) => (
           <section key={sub.feed.url}>
             <h1>{sub.feed.title}</h1>
             <ul>
